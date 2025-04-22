@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shopping Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --secondary: #ff6b6b;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7ff;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), #3a56e8);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo i {
+            font-size: 1.75rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+        
+        nav a:hover {
+            opacity: 0.9;
+        }
+        
+        .hero {
+            padding: 3rem 0;
+            text-align: center;
+            background: url('https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
+            position: relative;
+            color: white;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+        }
+        
+        .hero-content {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .search-box {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        #search-input {
+            flex: 1;
+            padding: 0.9rem 1.2rem;
+            border: none;
+            border-radius: 30px 0 0 30px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        #search-button {
+            padding: 0 1.5rem;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 0 30px 30px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        #search-button:hover {
+            background-color: #e05555;
+        }
+        
+        main {
+            padding: 3rem 0;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        @media (min-width: 992px) {
+            .main-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        .results-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 2rem;
+        }
+        
+        .section-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter {
+            padding: 0.5rem 1rem;
+            background: #f1f3ff;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            border: 1px solid #e0e4ff;
+        }
+        
+        .filter:hover {
+            background: #e0e4ff;
+        }
+        
+        .filter.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .welcome-message {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--gray);
+        }
+        
+        .welcome-message h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+        
+        .result-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-image {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .result-content {
+            flex: 1;
+        }
+        
+        .result-title {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .result-title a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .result-title a:hover {
+            text-decoration: underline;
+        }
+        
+        .result-price {
+            color: var(--success);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .result-description {
+            color: var(--gray);
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .result-merchant {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+        
+        .result-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 0.5rem;
+        }
+        
+        .result-rating i {
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+        
+        .result-rating span {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        /* Chatbot Styles */
+        .chatbot-container {
+            position: relative;
+        }
+        
+        .chatbot {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            position: sticky;
+            top: 1rem;
+        }
+        
+        .chatbot-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .chatbot-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+        
+        .chatbot-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .chatbot-status {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.2rem;
+        }
+        
+        .chatbot-status.online {
+            color: var(--success);
+        }
+        
+        .chatbot-status i {
+            font-size: 0.6rem;
+            margin-right: 0.3rem;
+        }
+        
+        .chatbot-messages {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bot-message {
+            background: #f0f4ff;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .user-message {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .chatbot-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        #chatbot-query {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        #chatbot-query:focus {
+            border-color: var(--primary);
+        }
+        
+        #chatbot-send {
+            width: 45px;
+            height: 45px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #chatbot-send:hover {
+            background-color: #3a56e8;
+        }
+        
+        /* Features Section */
+        .features {
+            margin: 3rem 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), #3a56e8);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+        }
+        
+        .feature-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            color: white;
+            margin-bottom: 1.25rem;
+            font-size: 1.1rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-column a {
+            color: #bdc1c6;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-column a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .social-links a:hover {
+            background: var(--primary);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #bdc1c6;
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .result-item {
+                flex-direction: column;
+            }
+            
+            .result-image {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>Smart Shopping Assistant</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Categories</a></li>
+                    <li><a href="#">Deals</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="hero-content">
+            <h2>Your Personal Shopping Assistant</h2>
+            <p>Find the best products at the best prices with our AI-powered shopping assistant</p>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="What are you looking for today?">
+                <button id="search-button"><i class="fas fa-search"></i> Search</button>
+            </div>
+        </div>
+    </section>
+    
+    <main class="container">
+        <div class="main-grid">
+            <div class="results-section">
+                <h2 class="section-title"><i class="fas fa-search"></i> Search Results</h2>
+                
+                <div class="filters">
+                    <div class="filter active" data-filter="all">All</div>
+                    <div class="filter" data-filter="electronics"><i class="fas fa-laptop"></i> Electronics</div>
+                    <div class="filter" data-filter="clothing"><i class="fas fa-tshirt"></i> Clothing</div>
+                    <div class="filter" data-filter="home"><i class="fas fa-home"></i> Home</div>
+                    <div class="filter" data-filter="beauty"><i class="fas fa-spa"></i> Beauty</div>
+                    <div class="filter" data-filter="books"><i class="fas fa-book"></i> Books</div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Finding the best products for you...</p>
+                </div>
+                
+                <div class="results-container" id="results">
+                    <div class="welcome-message">
+                        <h3>Welcome to Smart Shopping Assistant</h3>
+                        <p>Search for products to see recommendations, compare prices, and find the best deals.</p>
+                        <p>Try searching for "wireless headphones", "smartwatch", or "kitchen appliances".</p>
+                    </div>
+                </div>
+                
+                <section class="features">
+                    <h2 class="section-title"><i class="fas fa-star"></i> Why Choose Us?</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <h3>Best Price Guarantee</h3>
+                            <p>We compare prices across hundreds of retailers to ensure you always get the best deal.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3>AI Recommendations</h3>
+                            <p>Our smart assistant learns your preferences to suggest products you'll love.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Verified Reviews</h3>
+                            <p>Read authentic customer reviews before making your purchase decision.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <aside class="chatbot-container">
+                <div class="chatbot">
+                    <div class="chatbot-header">
+                        <div class="chatbot-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 class="chatbot-title">Shopping Assistant</h3>
+                            <div class="chatbot-status online">
+                                <i class="fas fa-circle"></i> Online
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chatbot-messages" id="chatbot-messages">
+                        <div class="message bot-message">
+                            Hello! I'm your Smart Shopping Assistant. How can I help you today? 😊
+                        </div>
+                        <div class="message bot-message">
+                            You can ask me about products, compare prices, or get personalized recommendations.
+                        </div>
+                    </div>
+                    
+                    <div class="chatbot-input">
+                        <input type="text" id="chatbot-query" placeholder="Ask me anything about shopping...">
+                        <button id="chatbot-send"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>Smart Shopping</h3>
+                    <p style="color: #bdc1c6; font-size: 0.9rem; margin-bottom: 1rem;">Your personal AI shopping assistant helping you find the best products at the best prices.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Categories</h3>
+                    <ul>
+                        <li><a href="#">Electronics</a></li>
+                        <li><a href="#">Clothing</a></li>
+                        <li><a href="#">Home & Garden</a></li>
+                        <li><a href="#">Beauty</a></li>
+                        <li><a href="#">Books</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Help & Support</h3>
+                    <ul>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns Policy</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 Smart Shopping Assistant. All rights reserved.
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
+            const resultsContainer = document.getElementById('results');
+            const loadingElement = document.getElementById('loading');
+            const filters = document.querySelectorAll('.filter');
+            const chatbotMessages = document.getElementById('chatbot-messages');
+            const chatbotQuery = document.getElementById('chatbot-query');
+            const chatbotSend = document.getElementById('chatbot-send');
+            
+            // Gemini API Configuration
+            const GEMINI_API_KEY = 'AIzaSyAVsPISxNmBM2ZbDDkYhPpEteEOdjl6riY';
+            const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+            
+            // Chatbot context and history
+            let chatHistory = [
+                {
+                    role: "user",
+                    parts: [{ text: "You are a helpful shopping assistant. Your name is Smart Shopping Assistant. You help users find products, compare prices, and make informed purchasing decisions. You can provide product recommendations, compare features, and help users find the best deals. Always be friendly and professional." }]
+                },
+                {
+                    role: "model",
+                    parts: [{ text: "Hello! I'm your Smart Shopping Assistant. How can I help you today? 😊" }]
+                }
+            ];
+            
+            // Filter selection
+            filters.forEach(filter => {
+                filter.addEventListener('click', function() {
+                    filters.forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                    if (searchInput.value.trim() !== '') {
+                        performSearch();
+                    }
+                });
+            });
+            
+            // Search functionality
+            searchButton.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            function performSearch() {
+                const query = searchInput.value.trim();
+                const activeFilter = document.querySelector('.filter.active').dataset.filter;
+                
+                if (query === '') {
+                    alert('Please enter a search term');
+                    return;
+                }
+                
+                // Show loading
+                loadingElement.style.display = 'block';
+                resultsContainer.innerHTML = '';
+                
+                // In a real implementation, you would call the Google Custom Search API here
+                // For now, we'll simulate results
+                setTimeout(() => {
+                    loadingElement.style.display = 'none';
+                    displaySampleResults(query, activeFilter);
+                }, 1500);
+            }
+            
+            function displaySampleResults(query, filter) {
+                // Sample product data - in a real app, this would come from the API
+                const sampleProducts = [
+                    {
+                        title: `Premium ${query} (2023 Model)`,
+                        link: '#',
+                        price: `$${(Math.random() * 300 + 50).toFixed(2)}`,
+                        description: `Top-rated ${query} with advanced features. Perfect for professionals and enthusiasts alike.`,
+                        merchant: 'Amazon',
+                        rating: (Math.random() * 1 + 4).toFixed(1),
+                        image: 'https://via.placeholder.com/150?text=Product+1'
+                    },
+                    {
+                        title: `Budget ${query} Pro`,
+                        link: '#',
+                        price: `$${(Math.random() * 100 + 20).toFixed(2)}`,
+                        description: `Affordable ${query} that doesn't compromise on quality. Great value for money.`,
+                        merchant: 'Walmart',
+                        rating: (Math.random() * 1 + 3.5).toFixed(1),
+                        image: 'https://via.placeholder.com/150?text=Product+2'
+                    },
+                    {
+                        title: `Luxury ${query} Edition`,
+                        link: '#',
+                        price: `$${(Math.random() * 500 + 200).toFixed(2)}`,
+                        description: `Premium ${query} with exclusive features and superior craftsmanship.`,
+                        merchant: 'Best Buy',
+                        rating: (Math.random() * 1 + 4.5).toFixed(1),
+                        image: 'https://via.placeholder.com/150?text=Product+3'
+                    },
+                    {
+                        title: `${query} Essentials Pack`,
+                        link: '#',
+                        price: `$${(Math.random() * 150 + 30).toFixed(2)}`,
+                        description: `Everything you need to get started with ${query}. Includes accessories and guide.`,
+                        merchant: 'Target',
+                        rating: (Math.random() * 1 + 4).toFixed(1),
+                        image: 'https://via.placeholder.com/150?text=Product+4'
+                    }
+                ];
+                
+                let resultsHTML = `<h3 style="margin-bottom: 1.5rem;">Results for "${query}" in ${filter}</h3>`;
+                
+                sampleProducts.forEach(product => {
+                    resultsHTML += `
+                        <div class="result-item">
+                            <img src="${product.image}" alt="${product.title}" class="result-image">
+                            <div class="result-content">
+                                <h3 class="result-title"><a href="${product.link}">${product.title}</a></h3>
+                                <div class="result-price">${product.price}</div>
+                                <div class="result-rating">
+                                    ${generateStarRating(product.rating)}
+                                    <span>${product.rating} (${Math.floor(Math.random() * 500 + 50)} reviews)</span>
+                                </div>
+                                <p class="result-description">${product.description}</p>
+                                <div class="result-merchant">Available at ${product.merchant}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = resultsHTML;
+            }
+            
+            function generateStarRating(rating) {
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 >= 0.5;
+                let starsHTML = '';
+                
+                for (let i = 0; i < fullStars; i++) {
+                    starsHTML += '<i class="fas fa-star"></i>';
+                }
+                
+                if (hasHalfStar) {
+                    starsHTML += '<i class="fas fa-star-half-alt"></i>';
+                }
+                
+                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                for (let i = 0; i < emptyStars; i++) {
+                    starsHTML += '<i class="far fa-star"></i>';
+                }
+                
+                return starsHTML;
+            }
+            
+            // Chatbot functionality
+            chatbotSend.addEventListener('click', sendChatbotMessage);
+            chatbotQuery.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatbotMessage();
+                }
+            });
+            
+            async function sendChatbotMessage() {
+                const query = chatbotQuery.value.trim();
+                
+                if (query === '') return;
+                
+                // Add user message to chat history
+                chatHistory.push({
+                    role: "user",
+                    parts: [{ text: query }]
+                });
+                
+                // Add user message to UI
+                addMessage(query, 'user');
+                chatbotQuery.value = '';
+                
+                try {
+                    // Show typing indicator
+                    const typingIndicator = document.createElement('div');
+                    typingIndicator.classList.add('message', 'bot-message');
+                    typingIndicator.innerHTML = '<i class="fas fa-ellipsis-h"></i>';
+                    chatbotMessages.appendChild(typingIndicator);
+                    
+                    // Get response from Gemini
+                    const response = await getGeminiResponse(query);
+                    
+                    // Remove typing indicator
+                    chatbotMessages.removeChild(typingIndicator);
+                    
+                    // Add bot response to chat history
+                    chatHistory.push({
+                        role: "model",
+                        parts: [{ text: response }]
+                    });
+                    
+                    // Add bot response to UI
+                    addMessage(response, 'bot');
+                } catch (error) {
+                    console.error('Error getting Gemini response:', error);
+                    addMessage("I'm sorry, I encountered an error. Please try again.", 'bot');
+                }
+            }
+            
+            async function getGeminiResponse(query) {
+                const requestBody = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        temperature: 0.7,
+                        topK: 40,
+                        topP: 0.95,
+                        maxOutputTokens: 1024,
+                    },
+                    safetySettings: [
+                        {
+                            category: "HARM_CATEGORY_HARASSMENT",
+                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                        },
+                        {
+                            category: "HARM_CATEGORY_HATE_SPEECH",
+                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                        },
+                        {
+                            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                        },
+                        {
+                            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                        }
+                    ]
+                };
+                
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            }
+            
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
+                
+                // Format the text if it's a bot message
+                if (sender === 'bot') {
+                    // Replace markdown-style formatting
+                    let formattedText = text
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+                        .replace(/\`(.*?)\`/g, '<code>$1</code>') // Code
+                        .replace(/\n/g, '<br>') // Line breaks
+                        .replace(/\- (.*?)(?:\n|$)/g, '• $1<br>'); // Bullet points
+                    
+                    messageDiv.innerHTML = formattedText;
+                } else {
+                    messageDiv.textContent = text;
+                }
+                
+                chatbotMessages.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
